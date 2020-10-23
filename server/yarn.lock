@@ -608,6 +608,13 @@
     fs-extra "9.0.1"
     pluralize "8.0.0"
 
+"@nestjs/serve-static@^2.1.3":
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/@nestjs/serve-static/-/serve-static-2.1.3.tgz#bdcb6d3463d193153b334212facc24a9767046e9"
+  integrity sha512-9xyysggaOdfbABWqhty+hAkauDWv/Q8YKHm4OMXdQbQei5tquFuTjiSx8IFDOZeSOKlA9fjBq/2MXCJRSo23SQ==
+  dependencies:
+    path-to-regexp "0.1.7"
+
 "@nestjs/testing@^7.0.0":
   version "7.4.4"
   resolved "https://registry.yarnpkg.com/@nestjs/testing/-/testing-7.4.4.tgz#7a64b22e043b0f9db993c1c22467d20d3331f380"
@@ -719,6 +726,13 @@
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/@types/cookiejar/-/cookiejar-2.1.2.tgz#66ad9331f63fe8a3d3d9d8c6e3906dd10f6446e8"
   integrity sha512-t73xJJrvdTjXrn4jLS9VSGRbz0nUY3cl2DMGDU48lKl+HR9dbbjW2A9r3g40VA++mQpy6uuHg33gy7du2BKpog==
+
+"@types/engine.io@*":
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/@types/engine.io/-/engine.io-3.1.4.tgz#3d9472711d179daa7c95c051e50ad411e18a9bdc"
+  integrity sha512-98rXVukLD6/ozrQ2O80NAlWDGA4INg+tqsEReWJldqyi2fulC9V7Use/n28SWgROXKm6003ycWV4gZHoF8GA6w==
+  dependencies:
+    "@types/node" "*"
 
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
@@ -866,6 +880,14 @@
   integrity sha512-nuRJmv7jW7VmCVTn+IgYDkkbbDGyIINOeu/G0d74X3lm6E5KfMeQPJhxIt1ayQeQB3cSxvYs1RA/wipYoFB4EA==
   dependencies:
     "@types/mime" "*"
+    "@types/node" "*"
+
+"@types/socket.io@^2.1.11":
+  version "2.1.11"
+  resolved "https://registry.yarnpkg.com/@types/socket.io/-/socket.io-2.1.11.tgz#e0d6759880e5f9818d5297a3328b36641bae996b"
+  integrity sha512-bVprmqPhJMLb9ZCm8g0Xy8kwBFRbnanOWSxzWkDkkIwxTvud5tKMfAJymXX6LQbizUKCS1yima7JM4BeLqjNqA==
+  dependencies:
+    "@types/engine.io" "*"
     "@types/node" "*"
 
 "@types/source-list-map@*":

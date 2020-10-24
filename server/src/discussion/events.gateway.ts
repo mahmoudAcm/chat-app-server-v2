@@ -25,8 +25,11 @@ export class EventsGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() room: string,
   ) {
-    client.join(room, () => {
-      client.emit(DiscussionEvent.CHAT);
+    client.join(room, async () => {
+      client.emit(
+        DiscussionEvent.CHAT,
+        await this.discussion.getChatDiscussions(room),
+      );
     });
   }
 

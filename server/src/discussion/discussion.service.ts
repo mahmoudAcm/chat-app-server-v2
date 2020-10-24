@@ -29,4 +29,13 @@ export class DiscussionService {
     const message = new this.Discussion(payload);
     return await message.save();
   }
+
+  /**
+   * @description gets all messages of a specific room from database
+   * @param room the chat room Id
+   */
+  async getChatDiscussions(room: string) {
+    const messages = await this.Discussion.find({ room });
+    return messages;
+  }
 }

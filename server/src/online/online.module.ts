@@ -14,5 +14,6 @@ const onlineSchema = new Schema({
     MongooseModule.forFeature([{ name: 'online', schema: onlineSchema }]),
   ],
   providers: [OnlineService, EventsGateway],
+  exports: [OnlineService],
 })
 export class OnlineModule {}

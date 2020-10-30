@@ -23,12 +23,12 @@ export class EventsGateway {
   @SubscribeMessage(DiscussionEvent.CHAT)
   startChatingRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() room: string,
+    @MessageBody() { room, page }: { room: string; page: number },
   ) {
     client.join(room, async () => {
       client.emit(
         DiscussionEvent.CHAT,
-        await this.discussion.getChatDiscussions(room),
+        await this.discussion.getChatDiscussions(room, page),
       );
     });
   }

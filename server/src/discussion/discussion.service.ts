@@ -17,6 +17,9 @@ export class discussion {
 
 @Injectable()
 export class DiscussionService {
+  private limit = 30;
+  private start = 0;
+
   constructor(
     @InjectModel('discussion') private Discussion: Model<discussion & Document>,
   ) {}
@@ -33,9 +36,14 @@ export class DiscussionService {
   /**
    * @description gets all messages of a specific room from database
    * @param room the chat room Id
+   * @param page the page number
    */
-  async getChatDiscussions(room: string) {
+  async getChatDiscussions(room: string, page: number) {
     const messages = await this.Discussion.find({ room });
-    return messages;
+    this.start = (page - 1) * this.limit;
+    return {
+      messages: messages.slice(this.start, this.start + this.limit),
+      hasNext: this.start + this.limit < messages.length,
+    };
   }
 }

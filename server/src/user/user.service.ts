@@ -1,11 +1,11 @@
 import {
   BadRequestException,
   Injectable,
-  Module,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Document } from 'mongoose';
+import { OnlineService } from 'src/online/online.service';
 
 export class User {
   username: string;
@@ -18,15 +18,23 @@ export class User {
 
 @Injectable()
 export class UserService {
-  private limit = 5;
-  private page = 1;
-  constructor(@InjectModel('users') private User: Model<User & Document>) {}
+  private limit = 10;
+
+  constructor(
+    @InjectModel('users') private User: Model<User & Document>,
+    private onlineService: OnlineService,
+  ) {}
 
   /**
    * @description creates new user and save it to database
    * @param payload
    */
   async createUser(payload: User) {
+    const isRegistered = this.User.find({ email: payload.email });
+    if (isRegistered) {
+      return new BadRequestException('user is registered befor');
+    }
+
     const user = new this.User(payload);
     return await user.save();
   }
@@ -42,74 +50,60 @@ export class UserService {
   }
 
   /**
-   * @description slice users array to a page
-   * @param result
-   */
-  private slicedUserArray(result: Array<any>) {
-    const start = (this.page - 1) * this.limit;
-    return result.slice(start, start + this.limit);
-  }
-
-  /**
    * @description gets users from database using some keys
    * @param search key used to search a user from databese
-   * @param page
+   * @param page the page number
    */
   async getUsers(search: string, page: number) {
-    if (!page) page = 1;
+    if (!page) return new BadRequestException('please provide page quwery');
+    if (search) search = '';
 
-    this.page = page;
-
-    /* tmp array used to do some operations on it search and spliting*/
-    const tmpUsers = await this.User.find({});
-
-    /* total number of pages if no search key used */
-    let pages = Math.ceil((tmpUsers.length * 1.0) / this.limit);
-
-    if (!search) {
-      if (page > pages) {
-        return new BadRequestException(`page ${page} not found.`);
+    //get all users from database
+    const users = await this.User.find({});
+    let usersMaped = [];
+    for (let user of users) {
+      const { _id: id, username, ...rest } = (user as any)._doc;
+      //if the search key is substr in username
+      let match = username.toLocaleLowerCase().includes(search);
+      //if search key is empty then we get all data
+      if (!search) {
+        match = true;
       }
 
-      const users = await new Promise<any[]>(async resolve => {
-        const result = [];
-        for (let user of tmpUsers) {
-          // @ts-ignore
-          const { password, ...rest } = user._doc;
-          result.push(rest);
-        }
+      if (!match) continue;
 
-        resolve(this.slicedUserArray(result));
+      usersMaped.push({
+        id,
+        username,
+        ...rest,
       });
-
-      return {
-        users,
-        pages,
-      };
     }
 
-    const result = [];
-    for (let user of tmpUsers) {
-      //we see if search key is a substring in username field
-      if (
-        user.username.toLocaleLowerCase().includes(search.toLocaleLowerCase())
-      ) {
-        // @ts-ignore
-        const { password, ...rest } = user._doc;
-        result.push(rest);
+    // slicing data into small chunks
+    let start = (page - 1) * this.limit;
+    let end = start + this.limit;
+    const hasNext = end < usersMaped.length;
+    const pages = Math.ceil((usersMaped.length * 1.0) / this.limit);
+
+    if (page > pages) return new NotFoundException('this page is not found');
+
+    usersMaped = await new Promise(async resolve => {
+      let users = [];
+      for (let { id, ...rest } of usersMaped.slice(start, end)) {
+        const online = await this.onlineService.isOnline(id);
+        users.push({
+          id,
+          online,
+          ...rest,
+        });
       }
-    }
 
-    /* total number of pages if search key is applied */
-    pages = Math.ceil((result.length * 1.0) / this.limit);
-    if (page > pages) {
-      return new BadRequestException(
-        `their is no page ${page} for users with search key -> ${search}.`,
-      );
-    }
+      resolve(users);
+    });
 
     return {
-      users: this.slicedUserArray(result),
+      users: usersMaped,
+      hasNext,
       pages,
     };
   }

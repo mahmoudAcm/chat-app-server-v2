@@ -3,15 +3,13 @@ import { Schema } from 'mongoose';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import { OnlineModule } from 'src/online/online.module';
 
 const userSchema = new Schema(
   {
     username: String,
     password: String,
-    email: {
-      type: String,
-      unique: true,
-    },
+    email: String,
     location: String,
     firstname: String,
     lastname: String,
@@ -22,7 +20,10 @@ const userSchema = new Schema(
 );
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: 'users', schema: userSchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: 'users', schema: userSchema }]),
+    OnlineModule,
+  ],
   controllers: [UserController],
   providers: [UserService],
 })

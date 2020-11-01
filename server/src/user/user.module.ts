@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { OnlineModule } from 'src/online/online.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 const userSchema = new Schema(
   {
@@ -23,6 +24,7 @@ const userSchema = new Schema(
   imports: [
     MongooseModule.forFeature([{ name: 'users', schema: userSchema }]),
     OnlineModule,
+    AuthModule,
   ],
   controllers: [UserController],
   providers: [UserService],

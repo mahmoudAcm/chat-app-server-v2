@@ -1,5 +1,7 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { User, UserService } from './user.service';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('')
 export class UserController {
@@ -10,12 +12,27 @@ export class UserController {
     return this.userService.createUser(user);
   }
 
-  @Get('/user/:id')
-  getUser(@Param('id') id: string) {
-    return this.userService.getUser(id);
+  @Post('/login')
+  async logIn(
+    @Body('email') email: string,
+    @Body('password') password: string,
+  ) {
+    const token = await this.userService.login(email, password);
+    return {
+      token,
+    };
+  }
+
+  @Get('/me')
+  @UseGuards(AuthGuard)
+  async profile(@Body('id') id: string) {
+    //@ts-ignore
+    const { password, ...rest } = (await this.userService.getUserById(id))._doc;
+    return rest;
   }
 
   @Get('/users')
+  @UseGuards(AuthGuard)
   getUsers(@Query('search') search: string, @Query('page') page: number) {
     return this.userService.getUsers(search, page);
   }

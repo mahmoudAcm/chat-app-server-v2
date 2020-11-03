@@ -33,7 +33,11 @@ export class UserController {
 
   @Get('/users')
   @UseGuards(AuthGuard)
-  getUsers(@Body('id') id: string, @Query('search') search: string, @Query('page') page: number) {
+  getUsers(
+    @Body('id') id: string,
+    @Query('search') search: string,
+    @Query('page') page: number,
+  ) {
     return this.userService.getUsers(id, search, page);
   }
 }

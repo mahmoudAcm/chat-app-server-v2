@@ -9,7 +9,7 @@ import { Model, Document } from 'mongoose';
 export class discussion {
   type: 'connected' | 'disconnect';
   sender: string;
-  room: Array<string>;
+  room: string;
   message: string;
   createdAt: string;
   updatedAt: string;
@@ -17,7 +17,7 @@ export class discussion {
 
 @Injectable()
 export class DiscussionService {
-  private limit = 30;
+  private limit = 20;
   private start = 0;
 
   constructor(
@@ -34,6 +34,20 @@ export class DiscussionService {
   }
 
   /**
+   * @description checks if the room is of type connected or disconnected
+   * @param room the room Id
+   * @returns it return true if they are connected
+   */
+  async isConnected(room: string) {
+    const type = (await this.Discussion.findOne({
+      room,
+      type: 'connected',
+    })) as discussion;
+
+    return type ? true : false;
+  }
+
+  /**
    * @description gets all messages of a specific room from database
    * @param room the chat room Id
    * @param page the page number
@@ -42,7 +56,10 @@ export class DiscussionService {
     const messages = await this.Discussion.find({ room });
     this.start = (page - 1) * this.limit;
     return {
-      messages: messages.slice(this.start, this.start + this.limit),
+      messages: messages
+        .reverse()
+        .slice(this.start, this.start + this.limit)
+        .reverse(),
       hasNext: this.start + this.limit < messages.length,
     };
   }

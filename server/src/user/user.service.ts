@@ -8,6 +8,7 @@ import { Model, Document } from 'mongoose';
 import * as jwt from 'jsonwebtoken';
 import { AuthService } from '../auth/auth.service';
 import { OnlineService } from '../online/online.service';
+import { DiscussionService } from '../discussion/discussion.service';
 import { jwtKey } from '../config';
 
 export class User {
@@ -28,6 +29,7 @@ export class UserService {
     @InjectModel('users') private User: Model<User & Document>,
     private onlineService: OnlineService,
     private authService: AuthService,
+    private discussion: DiscussionService,
   ) {}
 
   /**
@@ -84,9 +86,9 @@ export class UserService {
    * @param secondUser the userId wich we will check if it is a contact with the firstUser
    * @returns boolean if they have friend relation chip
    */
-  checkContact(firstUser: string, secondUser: string){
-    return false;
-  } 
+  async checkContact(firstUser: string, secondUser: string) {
+    return this.discussion.isConnected([firstUser, secondUser].join());
+  }
 
   /**
    * @description gets users from database using some keys
@@ -104,9 +106,11 @@ export class UserService {
     for (let user of users) {
       const { _id: id, username, ...rest } = (user as any)._doc;
       //if the search key is substr in username
-      let match = username.toLocaleLowerCase().includes(search.toLocaleLowerCase());
+      let match = username
+        .toLocaleLowerCase()
+        .includes(search.toLocaleLowerCase());
       //if search key is empty then we get all data
-      if (search === "") {
+      if (search === '') {
         match = true;
       }
 
@@ -131,8 +135,8 @@ export class UserService {
       let users = [];
       for (let { id: userId, ...rest } of usersMaped.slice(start, end)) {
         //check if the user whith id is not a contact with userId
-        const isFriend = this.checkContact(id, userId);
-        if(isFriend) continue;
+        const isConnected = await this.checkContact(id, userId);
+        if (isConnected) continue;
 
         const online = await this.onlineService.isOnline(userId);
         users.push({

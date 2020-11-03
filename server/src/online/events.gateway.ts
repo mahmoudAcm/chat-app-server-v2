@@ -34,7 +34,7 @@ export class EventsGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage(onlineMessageEvent.ONLINE)
-  @UseGuards(AuthGuard) 
+  @UseGuards(AuthGuard)
   isOnline(@ConnectedSocket() client: Socket, @Body('id') userId: string) {
     client.join(userId, async () => {
       await this.onlineService.online(client.id, userId);

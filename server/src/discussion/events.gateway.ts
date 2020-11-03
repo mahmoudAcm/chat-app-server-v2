@@ -1,3 +1,4 @@
+import { Body, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -7,6 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { discussion, DiscussionService } from './discussion.service';
+import { AuthGuard } from '../auth/auth.guard';
 
 enum DiscussionEvent {
   MESSAGE = 'message',
@@ -21,6 +23,7 @@ export class EventsGateway {
   @WebSocketServer() server: Server;
 
   @SubscribeMessage(DiscussionEvent.CHAT)
+  @UseGuards(AuthGuard)
   startChatingRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody() { room, page }: { room: string; page: number },
@@ -34,14 +37,16 @@ export class EventsGateway {
   }
 
   @SubscribeMessage(DiscussionEvent.TYPING)
-  isTyping(@MessageBody() { room, sender }: { room: string; sender: string }) {
+  @UseGuards(AuthGuard)
+  isTyping(@MessageBody() room: string, @Body('id') sender: string) {
     this.server.to(room).emit(DiscussionEvent.TYPING, sender);
   }
 
   @SubscribeMessage(DiscussionEvent.MESSAGE)
+  @UseGuards(AuthGuard)
   async sendMessage(@MessageBody() payload: discussion) {
     await this.discussion.discuss(payload);
-    const room = payload.room.join();
+    const room = payload.room;
     this.server.to(room).emit(DiscussionEvent.MESSAGE, payload);
   }
 }

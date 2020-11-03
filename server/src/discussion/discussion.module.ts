@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Schema, Types } from 'mongoose';
 import { DiscussionService } from './discussion.service';
-import { Schema } from 'mongoose';
 import { EventsGateway } from '../discussion/events.gateway';
 
-const discussionSchema = new Schema(
+export const discussionSchema = new Schema(
   {
     type: String,
-    sender: String,
-    room: [{ type: String }],
+    sender: Types.ObjectId,
+    room: String,
     message: String,
   },
   { timestamps: true },
@@ -21,5 +21,6 @@ const discussionSchema = new Schema(
     ]),
   ],
   providers: [DiscussionService, EventsGateway],
+  exports: [DiscussionService],
 })
 export class DiscussionModule {}

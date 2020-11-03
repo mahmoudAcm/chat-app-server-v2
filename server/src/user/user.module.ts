@@ -3,8 +3,9 @@ import { Schema } from 'mongoose';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { OnlineModule } from 'src/online/online.module';
-import { AuthModule } from 'src/auth/auth.module';
+import { OnlineModule } from '../online/online.module';
+import { AuthModule } from '../auth/auth.module';
+import { DiscussionModule } from '../discussion/discussion.module';
 
 const userSchema = new Schema(
   {
@@ -15,8 +16,8 @@ const userSchema = new Schema(
     firstname: String,
     lastname: String,
     avatar: {
-      type: "Buffer"
-    }
+      type: 'Buffer',
+    },
   },
   {
     timestamps: true,
@@ -28,6 +29,7 @@ const userSchema = new Schema(
     MongooseModule.forFeature([{ name: 'users', schema: userSchema }]),
     OnlineModule,
     AuthModule,
+    DiscussionModule,
   ],
   controllers: [UserController],
   providers: [UserService],

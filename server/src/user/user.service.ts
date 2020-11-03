@@ -18,7 +18,7 @@ export class User {
   location: string;
   firstname: string;
   lastname: string;
-  avatar: Buffer;
+  avatar: string;
 }
 
 @Injectable()

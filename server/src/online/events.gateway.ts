@@ -1,3 +1,4 @@
+import { AuthGuard } from './../auth/auth.guard';
 import { OnlineService } from './online.service';
 import {
   ConnectedSocket,
@@ -9,6 +10,7 @@ import {
 } from '@nestjs/websockets';
 
 import { Socket, Server } from 'socket.io';
+import { Body, UseGuards } from '@nestjs/common';
 
 enum onlineMessageEvent {
   ONLINE = 'online',
@@ -32,7 +34,8 @@ export class EventsGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage(onlineMessageEvent.ONLINE)
-  isOnline(@ConnectedSocket() client: Socket, @MessageBody() userId: string) {
+  @UseGuards(AuthGuard) 
+  isOnline(@ConnectedSocket() client: Socket, @Body('id') userId: string) {
     client.join(userId, async () => {
       await this.onlineService.online(client.id, userId);
       this.server.to(userId).emit(onlineMessageEvent.ONLINE_STATUS, true);
@@ -40,6 +43,7 @@ export class EventsGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage(onlineMessageEvent.ONLINE_STATUS)
+  @UseGuards(AuthGuard)
   onlineStatus(
     @ConnectedSocket() client: Socket,
     @MessageBody() userId: string,

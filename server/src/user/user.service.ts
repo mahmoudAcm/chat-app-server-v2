@@ -17,11 +17,12 @@ export class User {
   location: string;
   firstname: string;
   lastname: string;
+  avatar: Buffer;
 }
 
 @Injectable()
 export class UserService {
-  private limit = 10;
+  private limit = 20;
 
   constructor(
     @InjectModel('users') private User: Model<User & Document>,
@@ -78,23 +79,34 @@ export class UserService {
   }
 
   /**
+   * @description checks if first and second user are a contact or not
+   * @param firstUser the user who is searching for contacts
+   * @param secondUser the userId wich we will check if it is a contact with the firstUser
+   * @returns boolean if they have friend relation chip
+   */
+  checkContact(firstUser: string, secondUser: string){
+    return false;
+  } 
+
+  /**
    * @description gets users from database using some keys
+   * @param id the id of the user who is searching
    * @param search key used to search a user from databese
    * @param page the page number
    */
-  async getUsers(search: string, page: number) {
-    if (!page) return new BadRequestException('please provide page quwery');
-    if (search) search = '';
+  async getUsers(id: string, search: string, page: number) {
+    if (!page) return new BadRequestException('please provide page query');
+    if (!search) search = '';
 
     //get all users from database
-    const users = await this.User.find({});
+    const users = await this.User.find({ _id: { $ne: id } });
     let usersMaped = [];
     for (let user of users) {
       const { _id: id, username, ...rest } = (user as any)._doc;
       //if the search key is substr in username
-      let match = username.toLocaleLowerCase().includes(search);
+      let match = username.toLocaleLowerCase().includes(search.toLocaleLowerCase());
       //if search key is empty then we get all data
-      if (!search) {
+      if (search === "") {
         match = true;
       }
 
@@ -117,10 +129,14 @@ export class UserService {
 
     usersMaped = await new Promise(async resolve => {
       let users = [];
-      for (let { id, ...rest } of usersMaped.slice(start, end)) {
-        const online = await this.onlineService.isOnline(id);
+      for (let { id: userId, ...rest } of usersMaped.slice(start, end)) {
+        //check if the user whith id is not a contact with userId
+        const isFriend = this.checkContact(id, userId);
+        if(isFriend) continue;
+
+        const online = await this.onlineService.isOnline(userId);
         users.push({
-          id,
+          id: userId,
           online,
           ...rest,
         });

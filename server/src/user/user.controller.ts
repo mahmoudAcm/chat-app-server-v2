@@ -7,7 +7,7 @@ import { AuthGuard } from '../auth/auth.guard';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Post('/user')
+  @Post('/signUp')
   signUp(@Body() user: User) {
     return this.userService.createUser(user);
   }
@@ -33,7 +33,7 @@ export class UserController {
 
   @Get('/users')
   @UseGuards(AuthGuard)
-  getUsers(@Query('search') search: string, @Query('page') page: number) {
-    return this.userService.getUsers(search, page);
+  getUsers(@Body('id') id: string, @Query('search') search: string, @Query('page') page: number) {
+    return this.userService.getUsers(id, search, page);
   }
 }

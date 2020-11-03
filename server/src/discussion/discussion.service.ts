@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { UserService } from './../user/user.service';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Document } from 'mongoose';
 /**
@@ -22,6 +23,7 @@ export class DiscussionService {
 
   constructor(
     @InjectModel('discussion') private Discussion: Model<discussion & Document>,
+    @Inject(forwardRef(() => UserService)) private userService: UserService,
   ) {}
 
   /**
@@ -62,5 +64,23 @@ export class DiscussionService {
         .reverse(),
       hasNext: this.start + this.limit < messages.length,
     };
+  }
+
+  /**
+   * @description gets the last message
+   * @param room the chat room id
+   * @returns chat message
+   */
+  async lastMessage(room: string) {
+    const [message] = (await this.Discussion.find({ room })).reverse();
+    return message;
+  }
+
+  /**
+   * @description gets a user data
+   * @param id the id of the user
+   */
+  async getUserById(id: string) {
+    return this.userService.getUserById(id);
   }
 }

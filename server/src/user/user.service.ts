@@ -39,7 +39,8 @@ export class UserService {
   async getUserById(id: string) {
     const user = await this.User.findById(id);
     if (!user) return new NotFoundException("this user isn't found");
-    return user;
+    const online = await this.onlineService.isOnline(id);
+    return { online, ...user };
   }
 
   /**
@@ -87,7 +88,7 @@ export class UserService {
    * @returns boolean if they have friend relation chip
    */
   async checkContact(firstUser: string, secondUser: string) {
-    return this.discussion.isConnected([firstUser, secondUser].join());
+    return this.discussion.isConnected([firstUser, secondUser].sort().join());
   }
 
   /**

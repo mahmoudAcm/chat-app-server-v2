@@ -33,5 +33,6 @@ const userSchema = new Schema(
   ],
   controllers: [UserController],
   providers: [UserService],
+  exports: [UserService],
 })
 export class UserModule {}

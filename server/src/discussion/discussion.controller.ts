@@ -11,10 +11,9 @@ export class DiscussionController {
   async discussions(@Body('id') id: string, @Param('room') room: string) {
     const [userId] = room.split(id);
     const message = await this.discussion.lastMessage(room);
-    //@ts-ignore
-    const { avatar, firstname, username, online } = (
-      await this.discussion.getUserById(userId)
-    )._doc;
+    const { avatar, firstname, username, online } =
+      //@ts-ignore
+      (await this.discussion.getUserById(userId))._doc;
 
     return {
       userId,

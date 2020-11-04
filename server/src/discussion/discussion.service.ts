@@ -27,6 +27,29 @@ export class DiscussionService {
   ) {}
 
   /**
+   * @description gets all discussions of a user from database
+   * @param userId the id of the user who is getting data
+   */
+  async getDiscussionsByUserId(userId: string) {
+    let discussions = await this.Discussion.find({});
+    discussions = discussions.reverse();
+    let visited = {}, data = [];
+
+    for(let discussion of discussions) {
+      const { room, ...rest } = (discussion as any);
+      if(!visited[room] && room.includes(userId)){
+        visited[room] = true;
+        data.push({
+          room,
+          ...rest
+        });
+      }
+    }
+    
+    return data;
+  };
+
+  /**
    * @description creates new message of type connected or disconnected into database
    * @param payload message details
    */
@@ -67,6 +90,7 @@ export class DiscussionService {
   }
 
   /**
+   * @deprecated
    * @description gets the last message
    * @param room the chat room id
    * @returns chat message

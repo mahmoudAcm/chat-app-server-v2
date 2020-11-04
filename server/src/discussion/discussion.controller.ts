@@ -5,23 +5,33 @@ import { AuthGuard } from '../auth/auth.guard';
 @Controller('')
 export class DiscussionController {
   constructor(private discussion: DiscussionService) {}
+  private limit = 10;
 
   @Get('/discussions')
   @UseGuards(AuthGuard)
-  async discussions(@Body('id') id: string, @Param('room') room: string) {
-    const [userId] = room.split(id);
-    const message = await this.discussion.lastMessage(room);
-    const { avatar, firstname, username, online } =
-      //@ts-ignore
-      (await this.discussion.getUserById(userId))._doc;
+  async discussions(@Body('id') id: string, @Param('page') page: number) {
+    const discussions = await this.discussion.getDiscussionsByUserId(id);
+    let start = (page - 1) * this.limit;
+    let end = start + this.limit;
+
+    let hasNext = end < discussions.length;
+    const pages = Math.ceil((discussions.length * 1.0) / this.limit);
+
+    const data = [];
+    for(let discussion of discussions.slice(start, end)){
+      const { online, avatar, firstname } = (await this.discussion.getUserById(discussion.sender) as any)._doc;
+      data.push({
+        ...discussion,
+        online,
+        avatar,
+        firstname
+      });
+    }
 
     return {
-      userId,
-      message,
-      avatar,
-      firstname,
-      username,
-      online,
+      discussions: data,
+      hasNext,
+      pages
     };
   }
 }

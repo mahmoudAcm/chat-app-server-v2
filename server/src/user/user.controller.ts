@@ -26,9 +26,9 @@ export class UserController {
   @Get('/me')
   @UseGuards(AuthGuard)
   async profile(@Body('id') id: string) {
-    //@ts-ignore
     const { password, _id, ...rest } = (
       await this.userService.getUserById(id)
+      //@ts-ignore
     )._doc;
     return {
       id,

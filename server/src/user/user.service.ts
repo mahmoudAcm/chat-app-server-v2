@@ -88,7 +88,7 @@ export class UserService {
    * @returns boolean if they have friend relation chip
    */
   async checkContact(firstUser: string, secondUser: string) {
-    return this.discussion.isConnected([firstUser, secondUser].sort().join());
+    return this.discussion.isConnected([firstUser, secondUser].sort().join(''));
   }
 
   /**

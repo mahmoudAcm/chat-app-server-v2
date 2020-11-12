@@ -33,21 +33,22 @@ export class DiscussionService {
   async getDiscussionsByUserId(userId: string) {
     let discussions = await this.Discussion.find({});
     discussions = discussions.reverse();
-    let visited = {}, data = [];
+    let visited = {},
+      data = [];
 
-    for(let discussion of discussions) {
-      const { room, ...rest } = (discussion as any);
-      if(!visited[room] && room.includes(userId)){
+    for (let discussion of discussions) {
+      const { room, ...rest } = discussion as any;
+      if (!visited[room] && room.includes(userId)) {
         visited[room] = true;
         data.push({
           room,
-          ...rest
+          ...rest,
         });
       }
     }
-    
+
     return data;
-  };
+  }
 
   /**
    * @description creates new message of type connected or disconnected into database

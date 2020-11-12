@@ -18,20 +18,22 @@ export class DiscussionController {
     const pages = Math.ceil((discussions.length * 1.0) / this.limit);
 
     const data = [];
-    for(let discussion of discussions.slice(start, end)){
-      const { online, avatar, firstname } = (await this.discussion.getUserById(discussion.sender) as any)._doc;
+    for (let discussion of discussions.slice(start, end)) {
+      const { online, avatar, firstname } = ((await this.discussion.getUserById(
+        discussion.sender,
+      )) as any)._doc;
       data.push({
         ...discussion,
         online,
         avatar,
-        firstname
+        firstname,
       });
     }
 
     return {
       discussions: data,
       hasNext,
-      pages
+      pages,
     };
   }
 }

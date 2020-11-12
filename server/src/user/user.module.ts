@@ -15,7 +15,7 @@ const userSchema = new Schema(
     location: String,
     firstname: String,
     lastname: String,
-    avatar: String
+    avatar: String,
   },
   {
     timestamps: true,

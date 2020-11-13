@@ -1,4 +1,4 @@
-import { AuthGuard } from './../auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 import { OnlineService } from './online.service';
 import {
   ConnectedSocket,
@@ -10,7 +10,7 @@ import {
 } from '@nestjs/websockets';
 
 import { Socket, Server } from 'socket.io';
-import { Body, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 
 enum onlineMessageEvent {
   ONLINE = 'online',
@@ -35,7 +35,10 @@ export class EventsGateway implements OnGatewayDisconnect {
 
   @SubscribeMessage(onlineMessageEvent.ONLINE)
   @UseGuards(AuthGuard)
-  isOnline(@ConnectedSocket() client: Socket, @Body('id') userId: string) {
+  isOnline(@ConnectedSocket() client: any) {
+    const {
+      body: { id: userId },
+    } = client;
     client.join(userId, async () => {
       await this.onlineService.online(client.id, userId);
       this.server.to(userId).emit(onlineMessageEvent.ONLINE_STATUS, true);

@@ -1,4 +1,4 @@
-import { Body, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -38,7 +38,10 @@ export class EventsGateway {
 
   @SubscribeMessage(DiscussionEvent.TYPING)
   @UseGuards(AuthGuard)
-  isTyping(@MessageBody() room: string, @Body('id') sender: string) {
+  isTyping(@ConnectedSocket() client: any, @MessageBody() room: string) {
+    const {
+      body: { id: sender },
+    } = client;
     this.server.to(room).emit(DiscussionEvent.TYPING, sender);
   }
 
